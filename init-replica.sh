@@ -22,7 +22,8 @@ if [ ! -f /data/keyfile ]; then
 fi
 
 # Start MongoDB without authentication as a background process
-mongod --replSet rs0 --bind_ip_all > /var/log/mongod.log 2>&1 &
+# mongod --replSet rs0 --bind_ip_all > /var/log/mongod.log 2>&1 &
+mongod --replSet rs0 > /var/log/mongod.log 2>&1 &
 
 # Wait for MongoDB to start
 sleep 15
@@ -83,7 +84,8 @@ fi
 echo "Restarting MongoDB with authentication enabled..."
 mongod --shutdown
 sleep 5
-mongod --replSet rs0 --auth --keyFile /data/keyfile --bind_ip_all > /var/log/mongod.log 2>&1 &
+# mongod --replSet rs0 --auth --keyFile /data/keyfile --bind_ip_all > /var/log/mongod.log 2>&1 &
+mongod --replSet rs0 --auth --keyFile /data/keyfile > /var/log/mongod.log 2>&1 &
 
 # Wait for MongoDB to restart
 sleep 15
