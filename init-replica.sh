@@ -14,6 +14,13 @@
 
 #!/bin/bash
 
+# Generate a key file if it doesn't already exist
+if [ ! -f /data/keyfile ]; then
+    echo "Generating key file for replica set authentication..."
+    openssl rand -base64 756 > /data/keyfile
+    chmod 600 /data/keyfile
+fi
+
 # Start MongoDB without authentication as a background process
 mongod --replSet rs0 --bind_ip_all > /var/log/mongod.log 2>&1 &
 
@@ -76,7 +83,7 @@ fi
 echo "Restarting MongoDB with authentication enabled..."
 mongod --shutdown
 sleep 5
-mongod --replSet rs0 --auth --bind_ip_all > /var/log/mongod.log 2>&1 &
+mongod --replSet rs0 --auth --keyFile /data/keyfile --bind_ip_all > /var/log/mongod.log 2>&1 &
 
 # Wait for MongoDB to restart
 sleep 15
