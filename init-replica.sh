@@ -34,6 +34,23 @@ if ! pgrep -x "mongod" > /dev/null; then
     exit 1
 fi
 
+# Generate mongod.conf if it doesn't exist
+if [ ! -f /etc/mongod.conf ]; then
+    echo "Creating mongod.conf..."
+    cat <<EOF > /etc/mongod.conf
+net:
+  port: 27017
+  bindIp: 0.0.0.0  # Allow connections from any IP
+
+security:
+  authorization: enabled
+  keyFile: /data/keyfile
+
+replication:
+  replSetName: rs0
+EOF
+fi
+
 # Check if the replica set is already initialized
 IS_REPLICA_SET_INITIATED=$(mongosh --quiet --eval "try { rs.status().ok } catch (err) { 0 }" || echo "0")
 
