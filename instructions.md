@@ -6,13 +6,13 @@
 ```bash
 
 # if on mac - this will work
-docker build -t hants/mongo-replica-on:v6 .
+docker build -t hants/mongo-replica-on:v85 .
 
 # if for linux: - will only work on linux, give errors on mac: 
-docker build --platform linux/amd64 -t hants/mongo-replica-on:v7 .
+docker build --platform linux/amd64 -t hants/mongo-replica-on:v85 .
 
 
-docker run --name testABC -p 27017:27017 hants/mongo-replica-on:v6
+docker run --name testABC -p 27017:27017 hants/mongo-replica-on:v85
 
 docker exec -it testABC mongosh --eval "rs.status()"
 
@@ -25,8 +25,17 @@ docker exec -it testABC mongosh --eval "rs.status()"
 
 ```bash
 
-docker push hants/mongo-replica-on:v7
+docker push hants/mongo-replica-on:v85
     
+```
+
+## For connecting:
+
+- Then need to use the new user, e.g., andrew 
+- Connection string here needs to include the replica set name, e.g., rs0
+
+```bash
+mongodb://andrew:{password}@20.62.193.224:27017/?replicaSet=rs0
 ```
 
 

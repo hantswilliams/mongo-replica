@@ -60,7 +60,7 @@ else
     echo "Initializing replica set..."
     mongosh --quiet --eval "
     try {
-      rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]});
+      rs.initiate({_id: 'rs0', members: [{_id: 0, host: '20.62.193.224:27017'}]});
       print('Replica set initialized successfully.');
     } catch (err) {
       print('Error initializing replica set: ' + err);
