@@ -44,7 +44,7 @@ mongosh --eval "
 try {
   db = db.getSiblingDB('admin');
   db.createUser({
-    user: 'hants',
+    user: 'andrew',
     pwd: '46566656',
     roles: [{role: 'root', db: 'admin'}]
   });
