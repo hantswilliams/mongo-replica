@@ -33,9 +33,10 @@ docker push hants/mongo-replica-on:v85
 
 - Then need to use the new user, e.g., andrew 
 - Connection string here needs to include the replica set name, e.g., rs0
+- Connection string here needs to include the authSource=admin to authenticate against the admin database
 
 ```bash
-mongodb://andrew:{password}@20.62.193.224:27017/?replicaSet=rs0
+mongodb://andrew:{password}@20.62.193.224:27017/?replicaSet=rs0&authSource=admin
 ```
 
 
