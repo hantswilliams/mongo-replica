@@ -27,31 +27,50 @@ if ! pgrep -x "mongod" > /dev/null; then
     exit 1
 fi
 
-# Initialize the replica set
-mongosh --eval "
-try {
-  rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]});
-  print('Replica set initialized successfully.');
-} catch (err) {
-  print('Error initializing replica set: ' + err);
-}" 
+# Check if the replica set is already initialized
+IS_REPLICA_SET_INITIATED=$(mongosh --quiet --eval "rs.status().ok" || echo "0")
 
-# Wait for replica set initialization
-sleep 5
+if [ "$IS_REPLICA_SET_INITIATED" -eq "1" ]; then
+    echo "Replica set is already initialized."
+else
+    echo "Initializing replica set..."
+    mongosh --quiet --eval "
+    try {
+      rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]});
+      print('Replica set initialized successfully.');
+    } catch (err) {
+      print('Error initializing replica set: ' + err);
+    }" || exit 1
+    sleep 5
+fi
 
-# Create an admin user
-mongosh --eval "
+# Check if the admin user already exists
+IS_USER_EXISTS=$(mongosh --quiet --eval "
 try {
   db = db.getSiblingDB('admin');
-  db.createUser({
-    user: 'andrew',
-    pwd: '46566656',
-    roles: [{role: 'root', db: 'admin'}]
-  });
-  print('Admin user created successfully.');
+  db.getUser('andrew') !== null ? 1 : 0;
 } catch (err) {
-  print('Error creating admin user: ' + err);
-}" 
+  print('Error checking user: ' + err);
+  0;
+}" || echo "0")
+
+if [ "$IS_USER_EXISTS" -eq "1" ]; then
+    echo "Admin user already exists."
+else
+    echo "Creating admin user..."
+    mongosh --quiet --eval "
+    try {
+      db = db.getSiblingDB('admin');
+      db.createUser({
+        user: 'andrew',
+        pwd: '46566656',
+        roles: [{role: 'root', db: 'admin'}]
+      });
+      print('Admin user created successfully.');
+    } catch (err) {
+      print('Error creating admin user: ' + err);
+    }" || exit 1
+fi
 
 # Keep MongoDB running in the foreground
 wait
