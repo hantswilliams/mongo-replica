@@ -28,7 +28,7 @@ if ! pgrep -x "mongod" > /dev/null; then
 fi
 
 # Check if the replica set is already initialized
-IS_REPLICA_SET_INITIATED=$(mongosh --quiet --eval "rs.status().ok" || echo "0")
+IS_REPLICA_SET_INITIATED=$(mongosh --quiet --eval "try { rs.status().ok } catch (err) { 0 }" || echo "0")
 
 if [ "$IS_REPLICA_SET_INITIATED" -eq "1" ]; then
     echo "Replica set is already initialized."
@@ -72,5 +72,24 @@ else
     }" || exit 1
 fi
 
+# Restart MongoDB with authentication if necessary
+echo "Restarting MongoDB with authentication enabled..."
+mongod --shutdown
+sleep 5
+mongod --replSet rs0 --auth --bind_ip_all > /var/log/mongod.log 2>&1 &
+
+# Wait for MongoDB to restart
+sleep 15
+
+# Check if MongoDB restarted successfully
+if ! pgrep -x "mongod" > /dev/null; then
+    echo "MongoDB failed to restart. Check logs for details."
+    cat /var/log/mongod.log
+    exit 1
+fi
+
+echo "MongoDB is running with replica set and authentication enabled."
+
 # Keep MongoDB running in the foreground
-wait
+tail -f /var/log/mongod.log
+
